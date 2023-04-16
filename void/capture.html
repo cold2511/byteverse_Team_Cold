@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Upload Example</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+    <h1>Image Upload</h1>
+
+    <form id="image-upload" action="/Users/Rishi/OneDrive/Desktop/void/" enctype="multipart/form-data">
+        
+        <input type="file" id="image-upload" name="file" accept="image/*">
+        <button type="submit">Upload Image</button>
+    </form>
+    <img id="preview-image" src="" alt="Preview Image">
+    <script src="backend.js"></script>
+    <py-config>
+packages=["pytesseract","gTTS","django"]
+    </py-config>
+    <py-script>
+import cv2
+# Open the camera
+cap = cv2.VideoCapture(0)
+                
+# Check if camera opened successfully
+if not cap.isOpened():
+    print("Unable to open the camera.")
+    exit()
+                
+# Capture a photo
+ret, frame = cap.read()
+                
+# Check if photo captured successfully
+if not ret:
+    print("Unable to capture photo.")
+    cap.release()
+    exit()
+                
+# Save the photo
+cv2.imwrite("photo.jpg", frame)
+                
+print("Photo captured and saved as 'photo.jpg'.")
+                
+# Release the camera
+cap.release()
+
+
+
+        
+        
+import pytesseract
+from gtts import gTTS
+from PIL import Image
+         
+from django.shortcuts import render
+def upload(request):
+    if request.method=='post':
+        file=request.FILES['file']
+        return HttpResponse('image uploaded successfully.')
+    return render(request,'upload.html')    
+# Open the uploaded image
+uploaded_image = Image.open("uploaded_image.jpg")
+                
+# Preprocess the image
+image_gray = uploaded_image.convert("L")  # Convert to grayscale
+                
+# Perform OCR using Tesseract
+extracted_text = pytesseract.image_to_string(image_gray)
+                
+# Print the extracted text
+print("Extracted Text:")
+print(extracted_text)
+tts=gTTS(text=extracted_text)
+tts.save("converted.mp3")
+        
+        
+    </py-script>
+    <audio controls>
+        <source src="converted.mp3" type="audio/mpeg">
+    </audio>
+</body>
+</html>
+
+
+
